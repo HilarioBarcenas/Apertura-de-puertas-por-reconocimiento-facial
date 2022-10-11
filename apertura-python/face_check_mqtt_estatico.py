@@ -1,14 +1,10 @@
 #Bibliotecas
-import json, random, time, argparse
+import json
+import random
+import time
 from paho.mqtt import client as mqtt_client
 from deepface import DeepFace
 import pandas as pd
-
-#Parser
-parser = argparse.ArgumentParser()
-parser.add_argument ("img_src", help="Imagen a buscar en la BD de caras")
-parser.add_argument ("db_path", help="Ruta de la base de datos de caras")
-args = parser.parse_args()
 
 #Datos del broker
 broker = '127.0.0.1'
@@ -47,13 +43,16 @@ def publicarSinWhile(client, mensaje):
         print(f"Failed to send message to topic {topic}")
 
 #Buscar rostro
-df = DeepFace.find (img_path = args.img_src, db_path = args.db_path, enforce_detection = "false")
+df = DeepFace.find (img_path = "/home/hilario/Documentos/GitHub/Apertura-de-puertas-por-reconocimiento-facial/Deepface/Faces/Criss.jpg", db_path = "/home/hilario/Documentos/GitHub/Apertura-de-puertas-por-reconocimiento-facial/Deepface/my_db", enforce_detection = "false")
 print ("Resultado ")
 print (df)
-json_view = df.to_json(orient="index")
-print("La expresion en JSON de los resultados es: ")
+print ("Seleccion")
+print (df.identity[0])
 
-#Envio
+#Conexión con el Broker
+print("Conectandose al Broker")
 client = connect_mqtt()
 client.loop_start()
-publicarSinWhile(client, json_view)
+print("Enviando datos")
+publicarSinWhile(client, df.identity[0])
+print("Mensaje enviado")
